@@ -1,6 +1,6 @@
 # chatBot1.py
 # Chatbot simples para simular um cardápio de lanches no terminal
-from Flask import Flask, request, jsonify
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
