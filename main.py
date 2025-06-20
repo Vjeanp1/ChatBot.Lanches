@@ -1,5 +1,5 @@
 # ChatBot.Lanches
-Criado Para poupar o tempo de responder varias msg ao mesmo tempo
+#Criado Para poupar o tempo de responder varias msg ao mesmo tempo
 # chatBot1.py
 # Chatbot simples para simular um cardápio de lanches no terminal
 from flask import Flask, request, jsonify
