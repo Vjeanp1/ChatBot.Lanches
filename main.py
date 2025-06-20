@@ -117,7 +117,7 @@ def webhook():
                 usuarios.pop(numero)
             else:
                 resposta = "Opção inválida. Digite 1 para ver o cardápio."
-       elif user.get('estado') == 'espeto':
+            elif user.get('estado') == 'espeto':
             opcoes = [
                 ("Frango", 10), ("Carne", 10), ("Cafta", 10), ("Cafta com Queijo", 10),
                 ("Queijo Coalho", 10), ("Coração", 10)
@@ -131,8 +131,8 @@ def webhook():
                 user['estado'] = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número do espeto."
-        elif user.get('estado') == 'porcao':
-            opcoes = [("Batata Frita", 20), ("Salgadinhos Fritos", 20)]
+            elif user.get('estado') == 'porcao':
+                opcoes = [("Batata Frita", 20), ("Salgadinhos Fritos", 20)]
             try:
                 idx = int(mensagem) - 1
                 nome, preco = opcoes[idx]
@@ -142,7 +142,7 @@ def webhook():
                 user['estado'] = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número da porção."
-        elif user.get('estado') == 'salgado':
+            elif user.get('estado') == 'salgado':
             opcoes = [
                 ("Coxinha", 8), ("Esfirra de Frango", 8), ("Esfirra de Frango/c Catupiry", 8),
                 ("Risoli", 8), ("Kibe", 8), ("Hamburgão", 8)
@@ -156,7 +156,7 @@ def webhook():
                 user['estado'] = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número do salgado."
-        elif user.get('estado') == 'refrigerante':
+            elif user.get('estado') == 'refrigerante':
             opcoes = [
                 ("Guaraná Lata", 6), ("Fanta Lata", 6), ("Sprite Lata", 6), ("Coca-Cola Ks", 10),
                 ("Guaraná Ks", 10), ("Coca-Cola 2L", 15), ("Guaraná 2L", 12)
@@ -170,7 +170,7 @@ def webhook():
                 user['estado'] = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número do refrigerante."
-        elif user.get('estado') == 'cerveja':
+            elif user.get('estado') == 'cerveja':
             opcoes = [
                 ("Skol 300ml", 5), ("Original 300ml", 5), ("Brahma 300ml", 5), ("Skol Lata", 8),
                 ("Original Lata", 8), ("Brahma Lata", 8), ("Imperio Lata", 8), ("Imperio 600ml", 12),
@@ -185,7 +185,7 @@ def webhook():
                 user['estado'] = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número da cerveja."
-        elif user.get('estado') == 'copao':
+            elif user.get('estado') == 'copao':
             opcoes = [
                 ("Copão de Gin", 15), ("Gin de Melancia", 15), ("Gin de Maça-Verde", 15), ("Gin Tropical", 15),
                 ("Whisky", 15), ("Whisky Maça-Verde", 15), ("Whisky De Mel", 15), ("Cavalo Branco", 20),
