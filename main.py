@@ -117,7 +117,7 @@ def webhook():
                 usuarios.pop(numero)
             else:
                 resposta = "Opção inválida. Digite 1 para ver o cardápio."
-        elif user.get('estado') == 'espeto':
+            elif user.get('estado') == 'espeto':
             opcoes = [
                 ("Frango", 10), ("Carne", 10), ("Cafta", 10), ("Cafta com Queijo", 10),
                 ("Queijo Coalho", 10), ("Coração", 10)
