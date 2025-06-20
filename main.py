@@ -15,15 +15,15 @@ def webhook():
     numero = data.get('from')
     mensagem = data.get('body', '').strip().lower()
 
-   if numero not in usuarios:
+    if numero not in usuarios:
         usuarios[numero] = {'soma': 0.0, 'pedido': [], 'estado': 'menu'}
         resposta = "Olá! Bem-vindo ao Trailer do Lukinhas!\nDigite 1 para ver o cardápio."
     else:
         user = usuarios[numero]
-        if user.get('estado') == 'menu':
+    if user.get('estado') == 'menu':
             if mensagem == '1':
                 resposta = (
-                    "CARDÁPIO:\n"
+                     "CARDÁPIO:\n"
                     "1 - Espeto\n"
                     "2 - Porção\n"
                     "3 - Salgado\n"
