@@ -1,11 +1,28 @@
 # chatBot1.py
 # Chatbot simples para simular um cardápio de lanches no terminal
 from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+import json
 
 app = Flask(__name__)
 
-# Dicionário para armazenar sessões dos usuários
-usuarios = {}
+# Configuração do MySQL (ajuste user, password, host, database)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:uninter@localhost:3306/TrailerLukinhas'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+class Cliente(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    numero = db.Column(db.String(30), unique=True, nullable=False)
+    mesa = db.Column(db.String(10))
+    soma = db.Column(db.Float, default=0.0)
+    estado = db.Column(db.String(20), default='mesa')
+    pedido = db.Column(db.Text, default='[]')  # Salva como JSON string
+
+# Para criar as tabelas (execute uma vez no início do projeto):
+# with app.app_context():
+#     db.create_all()
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -13,19 +30,22 @@ def webhook():
     numero = data.get('from')
     mensagem = data.get('body', '').strip().lower()
 
-    if numero not in usuarios:
-        usuarios[numero] = {'soma': 0.0, 'pedido': [], 'estado': 'mesa', 'mesa': None}
+    cliente = Cliente.query.filter_by(numero=numero).first()
+    if not cliente:
+        cliente = Cliente(numero=numero, soma=0.0, pedido='[]', estado='mesa', mesa=None)
+        db.session.add(cliente)
+        db.session.commit()
         resposta = "Olá! Bem-vindo ao Trailer do Lukinhas!\nPor favor, informe o número da sua mesa:"
     else:
-        user = usuarios[numero]
-        if user.get('estado') == 'mesa':
+        if cliente.estado == 'mesa':
             if mensagem.isdigit():
-                user['mesa'] = mensagem
-                user['estado'] = 'menu'
+                cliente.mesa = mensagem
+                cliente.estado = 'menu'
+                db.session.commit()
                 resposta = "Digite 1 para ver o cardápio."
             else:
                 resposta = "Por favor, informe apenas o número da mesa."
-        elif user.get('estado') == 'menu':
+        elif cliente.estado == 'menu':
             if mensagem == '1':
                 resposta = (
                     "CARDÁPIO:\n"
@@ -39,7 +59,8 @@ def webhook():
                     "Digite o número da categoria desejada."
                 )
             elif mensagem == '2':
-                user['estado'] = 'porcao'
+                cliente.estado = 'porcao'
+                db.session.commit()
                 resposta = (
                     "Porções:\n"
                     "1 - Batata Frita (R$20)\n"
@@ -47,7 +68,8 @@ def webhook():
                     "Digite o número da porção desejada."
                 )
             elif mensagem == '1':
-                user['estado'] = 'espeto'
+                cliente.estado = 'espeto'
+                db.session.commit()
                 resposta = (
                     "Espetos:\n"
                     "1 - Frango (R$10)\n"
@@ -59,7 +81,8 @@ def webhook():
                     "Digite o número do espeto desejado."
                 )
             elif mensagem == '3':
-                user['estado'] = 'salgado'
+                cliente.estado = 'salgado'
+                db.session.commit()
                 resposta = (
                     "Salgados:\n"
                     "1 - Coxinha (R$8)\n"
@@ -71,7 +94,8 @@ def webhook():
                     "Digite o número do salgado desejado."
                 )
             elif mensagem == '4':
-                user['estado'] = 'refrigerante'
+                cliente.estado = 'refrigerante'
+                db.session.commit()
                 resposta = (
                     "Refrigerantes:\n"
                     "1 - Guaraná Lata (R$6)\n"
@@ -84,7 +108,8 @@ def webhook():
                     "Digite o número do refrigerante desejado."
                 )
             elif mensagem == '5':
-                user['estado'] = 'cerveja'
+                cliente.estado = 'cerveja'
+                db.session.commit()
                 resposta = (
                     "Cervejas:\n"
                     "1 - Skol 300ml (R$5)\n"
@@ -102,7 +127,8 @@ def webhook():
                     "Digite o número da cerveja desejada."
                 )
             elif mensagem == '6':
-                user['estado'] = 'copao'
+                cliente.estado = 'copao'
+                db.session.commit()
                 resposta = (
                     "Copão:\n"
                     "1 - Copão de Gin (R$15)\n"
@@ -118,11 +144,12 @@ def webhook():
                     "Digite o número do copão desejado."
                 )
             elif mensagem == '0':
-                resposta = f"Mesa: {user['mesa']}\nSeu pedido: {user['pedido']}\nTotal: R$ {user['soma']:.2f}\nObrigado!"
-                usuarios.pop(numero)
+                resposta = f"Mesa: {cliente.mesa}\nSeu pedido: {cliente.pedido}\nTotal: R$ {cliente.soma:.2f}\nObrigado!"
+                db.session.delete(cliente)
+                db.session.commit()
             else:
                 resposta = "Opção inválida. Digite 1 para ver o cardápio."
-        elif user.get('estado') == 'espeto':
+        elif cliente.estado == 'espeto':
             opcoes = [
                 ("Frango", 10), ("Carne", 10), ("Cafta", 10), ("Cafta com Queijo", 10),
                 ("Queijo Coalho", 10), ("Coração", 10)
@@ -130,24 +157,30 @@ def webhook():
             try:
                 idx = int(mensagem) - 1
                 nome, preco = opcoes[idx]
-                user['soma'] += preco
-                user['pedido'].append(f"Espeto de {nome} - R$ {preco},00")
+                cliente.soma += preco
+                pedido = json.loads(cliente.pedido)
+                pedido.append(f"Espeto de {nome} - R$ {preco},00")
+                cliente.pedido = json.dumps(pedido)
+                db.session.commit()
                 resposta = f"Espeto de {nome} adicionado! Digite 1 para ver o cardápio ou 0 para finalizar."
-                user['estado'] = 'menu'
+                cliente.estado = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número do espeto."
-        elif user.get('estado') == 'porcao':
+        elif cliente.estado == 'porcao':
             opcoes = [("Batata Frita", 20), ("Salgadinhos Fritos", 20)]
             try:
                 idx = int(mensagem) - 1
                 nome, preco = opcoes[idx]
-                user['soma'] += preco
-                user['pedido'].append(f"Porção de {nome} - R$ {preco},00")
+                cliente.soma += preco
+                pedido = json.loads(cliente.pedido)
+                pedido.append(f"Porção de {nome} - R$ {preco},00")
+                cliente.pedido = json.dumps(pedido)
+                db.session.commit()
                 resposta = f"Porção de {nome} adicionada! Digite 1 para ver o cardápio ou 0 para finalizar."
-                user['estado'] = 'menu'
+                cliente.estado = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número da porção."
-        elif user.get('estado') == 'salgado':
+        elif cliente.estado == 'salgado':
             opcoes = [
                 ("Coxinha", 8), ("Esfirra de Frango", 8), ("Esfirra de Frango/c Catupiry", 8),
                 ("Risoli", 8), ("Kibe", 8), ("Hamburgão", 8)
@@ -155,13 +188,16 @@ def webhook():
             try:
                 idx = int(mensagem) - 1
                 nome, preco = opcoes[idx]
-                user['soma'] += preco
-                user['pedido'].append(f"{nome} - R$ {preco},00")
+                cliente.soma += preco
+                pedido = json.loads(cliente.pedido)
+                pedido.append(f"{nome} - R$ {preco},00")
+                cliente.pedido = json.dumps(pedido)
+                db.session.commit()
                 resposta = f"{nome} adicionado! Digite 1 para ver o cardápio ou 0 para finalizar."
-                user['estado'] = 'menu'
+                cliente.estado = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número do salgado."
-        elif user.get('estado') == 'refrigerante':
+        elif cliente.estado == 'refrigerante':
             opcoes = [
                 ("Guaraná Lata", 6), ("Fanta Lata", 6), ("Sprite Lata", 6), ("Coca-Cola Ks", 10),
                 ("Guaraná Ks", 10), ("Coca-Cola 2L", 15), ("Guaraná 2L", 12)
@@ -169,13 +205,16 @@ def webhook():
             try:
                 idx = int(mensagem) - 1
                 nome, preco = opcoes[idx]
-                user['soma'] += preco
-                user['pedido'].append(f"{nome} - R$ {preco},00")
+                cliente.soma += preco
+                pedido = json.loads(cliente.pedido)
+                pedido.append(f"{nome} - R$ {preco},00")
+                cliente.pedido = json.dumps(pedido)
+                db.session.commit()
                 resposta = f"{nome} adicionado! Digite 1 para ver o cardápio ou 0 para finalizar."
-                user['estado'] = 'menu'
+                cliente.estado = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número do refrigerante."
-        elif user.get('estado') == 'cerveja':
+        elif cliente.estado == 'cerveja':
             opcoes = [
                 ("Skol 300ml", 5), ("Original 300ml", 5), ("Brahma 300ml", 5), ("Skol Lata", 8),
                 ("Original Lata", 8), ("Brahma Lata", 8), ("Imperio Lata", 8), ("Imperio 600ml", 12),
@@ -184,13 +223,16 @@ def webhook():
             try:
                 idx = int(mensagem) - 1
                 nome, preco = opcoes[idx]
-                user['soma'] += preco
-                user['pedido'].append(f"Cerveja {nome} - R$ {preco},00")
+                cliente.soma += preco
+                pedido = json.loads(cliente.pedido)
+                pedido.append(f"Cerveja {nome} - R$ {preco},00")
+                cliente.pedido = json.dumps(pedido)
+                db.session.commit()
                 resposta = f"Cerveja {nome} adicionada! Digite 1 para ver o cardápio ou 0 para finalizar."
-                user['estado'] = 'menu'
+                cliente.estado = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número da cerveja."
-        elif user.get('estado') == 'copao':
+        elif cliente.estado == 'copao':
             opcoes = [
                 ("Copão de Gin", 15), ("Gin de Melancia", 15), ("Gin de Maça-Verde", 15), ("Gin Tropical", 15),
                 ("Whisky", 15), ("Whisky Maça-Verde", 15), ("Whisky De Mel", 15), ("Cavalo Branco", 20),
@@ -199,10 +241,13 @@ def webhook():
             try:
                 idx = int(mensagem) - 1
                 nome, preco = opcoes[idx]
-                user['soma'] += preco
-                user['pedido'].append(f"{nome} - R$ {preco},00")
+                cliente.soma += preco
+                pedido = json.loads(cliente.pedido)
+                pedido.append(f"{nome} - R$ {preco},00")
+                cliente.pedido = json.dumps(pedido)
+                db.session.commit()
                 resposta = f"{nome} adicionado! Digite 1 para ver o cardápio ou 0 para finalizar."
-                user['estado'] = 'menu'
+                cliente.estado = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número do copão."
         else:
