@@ -19,6 +19,7 @@ class Cliente(db.Model):
     soma = db.Column(db.Float, default=0.0)
     estado = db.Column(db.String(20), default='mesa')
     pedido = db.Column(db.Text, default='[]')  # Salva como JSON string
+    nome = db.Column(db.String(100))
 
 # Para criar as tabelas (execute uma vez no início do projeto):
 # with app.app_context():
@@ -26,13 +27,16 @@ class Cliente(db.Model):
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    data = request.json
-    numero = data.get('from')
-    mensagem = data.get('body', '').strip().lower()
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form.to_dict()
+    numero = data.get('From') or data.get('from')
+    mensagem = data.get('Body') or data.get('body', '').strip().lower()
 
     cliente = Cliente.query.filter_by(numero=numero).first()
     if not cliente:
-        cliente = Cliente(numero=numero, soma=0.0, pedido='[]', estado='mesa', mesa=None)
+        cliente = Cliente(numero=numero, soma=0.0, pedido='[]', estado='mesa', mesa=None, nome=None)
         db.session.add(cliente)
         db.session.commit()
         resposta = "Olá! Bem-vindo ao Trailer do Lukinhas!\nPor favor, informe o número da sua mesa:"
@@ -40,11 +44,16 @@ def webhook():
         if cliente.estado == 'mesa':
             if mensagem.isdigit():
                 cliente.mesa = mensagem
-                cliente.estado = 'menu'
+                cliente.estado = 'nome'
                 db.session.commit()
-                resposta = "Digite 1 para ver o cardápio."
+                resposta = "Agora, por favor, informe seu nome:"
             else:
                 resposta = "Por favor, informe apenas o número da mesa."
+        elif cliente.estado == 'nome':
+            cliente.nome = data.get('Body') or data.get('body', '').strip()
+            cliente.estado = 'menu'
+            db.session.commit()
+            resposta = f"Obrigado, {cliente.nome}! Digite 1 para ver o cardápio."
         elif cliente.estado == 'menu':
             if mensagem == '1':
                 resposta = (
@@ -253,7 +262,7 @@ def webhook():
         else:
             resposta = "Opção inválida. Digite 1 para ver o cardápio."
 
-    return jsonify({"reply": resposta})
+    return resposta
 
 if __name__ == '__main__':
     app.run(port=5000)
