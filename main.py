@@ -14,11 +14,18 @@ def webhook():
     mensagem = data.get('body', '').strip().lower()
 
     if numero not in usuarios:
-        usuarios[numero] = {'soma': 0.0, 'pedido': [], 'estado': 'menu'}
-        resposta = "Olá! Bem-vindo ao Trailer do Lukinhas!\nDigite 1 para ver o cardápio."
+        usuarios[numero] = {'soma': 0.0, 'pedido': [], 'estado': 'mesa', 'mesa': None}
+        resposta = "Olá! Bem-vindo ao Trailer do Lukinhas!\nPor favor, informe o número da sua mesa:"
     else:
         user = usuarios[numero]
-        if user.get('estado') == 'menu':
+        if user.get('estado') == 'mesa':
+            if mensagem.isdigit():
+                user['mesa'] = mensagem
+                user['estado'] = 'menu'
+                resposta = "Digite 1 para ver o cardápio."
+            else:
+                resposta = "Por favor, informe apenas o número da mesa."
+        elif user.get('estado') == 'menu':
             if mensagem == '1':
                 resposta = (
                     "CARDÁPIO:\n"
@@ -111,7 +118,7 @@ def webhook():
                     "Digite o número do copão desejado."
                 )
             elif mensagem == '0':
-                resposta = f"Seu pedido: {user['pedido']}\nTotal: R$ {user['soma']:.2f}\nObrigado!"
+                resposta = f"Mesa: {user['mesa']}\nSeu pedido: {user['pedido']}\nTotal: R$ {user['soma']:.2f}\nObrigado!"
                 usuarios.pop(numero)
             else:
                 resposta = "Opção inválida. Digite 1 para ver o cardápio."
