@@ -18,12 +18,8 @@ class Cliente(db.Model):
     mesa = db.Column(db.String(10))
     soma = db.Column(db.Float, default=0.0)
     estado = db.Column(db.String(20), default='mesa')
-    pedido = db.Column(db.Text, default='[]')  # Salva como JSON string
+    pedido = db.Column(db.Text, default='[]')
     nome = db.Column(db.String(100))
-
-# Para criar as tabelas (execute uma vez no início do projeto):
-# with app.app_context():
-#     db.create_all()
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -132,7 +128,7 @@ def webhook():
                     "9 - Skol 600ml (R$12)\n"
                     "10 - Original 600ml (R$12)\n"
                     "11 - Brahma 600ml (R$12)\n"
-                    "12 - Heiniken 600ml (R$15)\n"
+                    "12 - Heineken 600ml (R$15)\n"
                     "Digite o número da cerveja desejada."
                 )
             elif mensagem == '6':
@@ -262,7 +258,37 @@ def webhook():
         else:
             resposta = "Opção inválida. Digite 1 para ver o cardápio."
 
-    return resposta
+    return jsonify({"response": resposta})
+@app.route('/clientes', methods=['GET'])
+def listar_clientes():
+    clientes = Cliente.query.all()
+    clientes_list = []
+    for cliente in clientes:
+        clientes_list.append({
+            "id": cliente.id,
+            "numero": cliente.numero,
+            "mesa": cliente.mesa,
+            "soma": cliente.soma,
+            "estado": cliente.estado,
+            "pedido": json.loads(cliente.pedido),
+            "nome": cliente.nome
+        })
+    return jsonify(clientes_list)
+@app.route('/cliente/<int:id>', methods=['GET'])
+def obter_cliente(id):
+    cliente = Cliente.query.get(id)
+    if not cliente:
+        return jsonify({"error": "Cliente não encontrado"}), 404
+    return jsonify({
+        "id": cliente.id,
+        "numero": cliente.numero,
+        "mesa": cliente.mesa,
+        "soma": cliente.soma,
+        "estado": cliente.estado,
+        "pedido": json.loads(cliente.pedido),
+        "nome": cliente.nome
+    })
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    print("Servidor Flask rodando! Use o endereço do ngrok para conectar seu webhook do WhatsApp.")
+    app.run(host="0.0.0.0", port=5000)
