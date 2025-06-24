@@ -149,9 +149,10 @@ def webhook():
                     "Digite o número do copão desejado."
                 )
             elif mensagem == '0':
-                resposta = f"Mesa: {cliente.mesa}\nSeu pedido: {cliente.pedido}\nTotal: R$ {cliente.soma:.2f}\nObrigado!"
+                resposta = f"Mesa: {cliente.mesa}\nSeu pedido: {json.loads(cliente.pedido)}\nTotal: R$ {cliente.soma:.2f}\nObrigado!"
                 db.session.delete(cliente)
                 db.session.commit()
+                return jsonify({"response": resposta})
             else:
                 resposta = "Opção inválida. Digite 1 para ver o cardápio."
         elif cliente.estado == 'espeto':
