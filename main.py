@@ -1,12 +1,9 @@
-# chatBot1.py
-# Chatbot simples para simular um cardápio de lanches no terminal
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import json
 
 app = Flask(__name__)
 
-# Configuração do MySQL (ajuste user, password, host, database)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:uninter@localhost:3306/TrailerLukinhas'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -60,6 +57,7 @@ def webhook():
                     "4 - Refrigerante\n"
                     "5 - Cerveja\n"
                     "6 - Copão\n"
+                    "7 - Lanches:\n"
                     "0 - Finalizar pedido\n"
                     "Digite o número da categoria desejada."
                 )
@@ -69,7 +67,7 @@ def webhook():
                 resposta = (
                     "Porções:\n"
                     "1 - Batata Frita (R$20)\n"
-                    "2 - Salgadinhos Fritos (R$20)\n"
+                    "2 - Salgados Fritos (coxinha e bolinha de queijo) (R$18)\n"
                     "Digite o número da porção desejada."
                 )
             elif mensagem == '1':
@@ -77,8 +75,8 @@ def webhook():
                 db.session.commit()
                 resposta = (
                     "Espetos:\n"
-                    "1 - Frango (R$10)\n"
-                    "2 - Carne (R$10)\n"
+                    "1 - Frango (R$8)\n"
+                    "2 - Carne (R$8)\n"
                     "3 - Cafta (R$10)\n"
                     "4 - Cafta com Queijo (R$10)\n"
                     "5 - Queijo Coalho (R$10)\n"
@@ -94,8 +92,8 @@ def webhook():
                     "2 - Esfirra de Frango (R$8)\n"
                     "3 - Esfirra de Frango/c Catupiry (R$8)\n"
                     "4 - Risoli (R$8)\n"
-                    "5 - Kibe (R$8)\n"
-                    "6 - Hamburgão (R$8)\n"
+                    "5 - Bolinho de Carne (R$8)\n"
+                    "6 - Enroladinho de Salsicha (R$8)\n"
                     "Digite o número do salgado desejado."
                 )
             elif mensagem == '4':
@@ -104,12 +102,12 @@ def webhook():
                 resposta = (
                     "Refrigerantes:\n"
                     "1 - Guaraná Lata (R$6)\n"
-                    "2 - Fanta Lata (R$6)\n"
-                    "3 - Sprite Lata (R$6)\n"
-                    "4 - Coca-Cola Ks (R$10)\n"
-                    "5 - Guaraná Ks (R$10)\n"
-                    "6 - Coca-Cola 2L (R$15)\n"
-                    "7 - Guaraná 2L (R$12)\n"
+                    "2 - Fanta Laranja Lata (R$6)\n"
+                    "3 - Fanta Uva Lata (R$6)\n"
+                    "4 - Sprite Lata (R$6)\n"
+                    "5 - Coca-Cola Lata (R$6)\n"
+                    "6 - Coca-Cola Zero Lata (R$6)\n"
+                    "7 - Coca-Cola Ks (R$5)\n"
                     "Digite o número do refrigerante desejado."
                 )
             elif mensagem == '5':
@@ -117,18 +115,15 @@ def webhook():
                 db.session.commit()
                 resposta = (
                     "Cervejas:\n"
-                    "1 - Skol 300ml (R$5)\n"
-                    "2 - Original 300ml (R$5)\n"
-                    "3 - Brahma 300ml (R$5)\n"
-                    "4 - Skol Lata (R$8)\n"
-                    "5 - Original Lata (R$8)\n"
-                    "6 - Brahma Lata (R$8)\n"
-                    "7 - Imperio Lata (R$8)\n"
-                    "8 - Imperio 600ml (R$12)\n"
-                    "9 - Skol 600ml (R$12)\n"
-                    "10 - Original 600ml (R$12)\n"
-                    "11 - Brahma 600ml (R$12)\n"
-                    "12 - Heineken 600ml (R$15)\n"
+                    "1 - Original 269ml (R$5)\n"
+                    "2 - Imperio 269ml (R$5)\n"
+                    "3 - Original 300ml (R$5)\n"
+                    "4 - Skol 350ml (R$5)\n"
+                    "5 - Heineken long neck  (R$10)\n"
+                    "6 - Skol 600ml (R$12)\n"
+                    "7 - Imperio 600ml (R$12)\n"
+                    "8 - Original 600ml (R$15)\n"
+                    "9 - Heineken 600(R$15)\n"
                     "Digite o número da cerveja desejada."
                 )
             elif mensagem == '6':
@@ -136,17 +131,28 @@ def webhook():
                 db.session.commit()
                 resposta = (
                     "Copão:\n"
-                    "1 - Copão de Gin (R$15)\n"
-                    "2 - Gin de Melancia (R$15)\n"
-                    "3 - Gin de Maça-Verde (R$15)\n"
-                    "4 - Gin Tropical (R$15)\n"
-                    "5 - Whisky (R$15)\n"
-                    "6 - Whisky Maça-Verde (R$15)\n"
-                    "7 - Whisky De Mel (R$15)\n"
+                    "1 - Copão de Gin (R$10)\n"
+                    "2 - Gin de Melancia (R$10)\n"
+                    "3 - Gin de Maça-Verde (R$10)\n"
+                    "4 - Gin Tropical (R$10)\n"
+                    "5 - Passaport (R$20)\n"
+                    "6 - Passaport Honey (R$25)\n"
+                    "7 - Passaport Aplle (R$25)\n"
                     "8 - Cavalo Branco (R$20)\n"
                     "9 - Red Label (R$25)\n"
-                    "10 - Jack Daniels (R$30)\n"
+                    "10 - Jack Daniels (R$40)\n"
+                    "11 - Jack Daniels Honey (R$45)\n"
                     "Digite o número do copão desejado."
+                )
+            
+            elif mensagem == '7':
+                cliente.estado = 'lanches'
+                db.session.commit()
+                resposta = (                    "Lanches:\n"
+                    "1 - X-Burguer (R$20)\n"
+                    "2 - X-Salada (R$22)\n"
+                    "3 - X-Bacon (R$22)\n"
+                    "Digite o número do lanche desejado."
                 )
             elif mensagem == '0':
                 resposta = f"Mesa: {cliente.mesa}\nSeu pedido: {json.loads(cliente.pedido)}\nTotal: R$ {cliente.soma:.2f}\nObrigado!"
@@ -157,7 +163,7 @@ def webhook():
                 resposta = "Opção inválida. Digite 1 para ver o cardápio."
         elif cliente.estado == 'espeto':
             opcoes = [
-                ("Frango", 10), ("Carne", 10), ("Cafta", 10), ("Cafta com Queijo", 10),
+                ("Frango", 8), ("Carne", 8), ("Cafta", 10), ("Cafta com Queijo", 10),
                 ("Queijo Coalho", 10), ("Coração", 10)
             ]
             try:
@@ -173,7 +179,7 @@ def webhook():
             except:
                 resposta = "Opção inválida. Digite novamente o número do espeto."
         elif cliente.estado == 'porcao':
-            opcoes = [("Batata Frita", 20), ("Salgadinhos Fritos", 20)]
+            opcoes = [("Batata Frita", 20), ("Salgados Fritos", 18)]
             try:
                 idx = int(mensagem) - 1
                 nome, preco = opcoes[idx]
@@ -189,7 +195,7 @@ def webhook():
         elif cliente.estado == 'salgado':
             opcoes = [
                 ("Coxinha", 8), ("Esfirra de Frango", 8), ("Esfirra de Frango/c Catupiry", 8),
-                ("Risoli", 8), ("Kibe", 8), ("Hamburgão", 8)
+                ("Risoli", 8), ("Bolinho de Carne", 8), ("Enroladinho Salsicha", 8)
             ]
             try:
                 idx = int(mensagem) - 1
@@ -222,9 +228,9 @@ def webhook():
                 resposta = "Opção inválida. Digite novamente o número do refrigerante."
         elif cliente.estado == 'cerveja':
             opcoes = [
-                ("Skol 300ml", 5), ("Original 300ml", 5), ("Brahma 300ml", 5), ("Skol Lata", 8),
-                ("Original Lata", 8), ("Brahma Lata", 8), ("Imperio Lata", 8), ("Imperio 600ml", 12),
-                ("Skol 600ml", 12), ("Original 600ml", 12), ("Brahma 600ml", 12), ("Heiniken 600ml", 15)
+                ("Original 269ml", 5), ("Imperio 269ml", 5), ("Original 300ml", 5), ("Skol 300ml", 5),
+                ("Heiniken Long Neck", 10), ("Skol 600ml", 12), ("Imperio 600ml", 12),("Original 600ml", 15),
+                ("Heiniken 600ml", 15)
             ]
             try:
                 idx = int(mensagem) - 1
@@ -240,9 +246,9 @@ def webhook():
                 resposta = "Opção inválida. Digite novamente o número da cerveja."
         elif cliente.estado == 'copao':
             opcoes = [
-                ("Copão de Gin", 15), ("Gin de Melancia", 15), ("Gin de Maça-Verde", 15), ("Gin Tropical", 15),
-                ("Whisky", 15), ("Whisky Maça-Verde", 15), ("Whisky De Mel", 15), ("Cavalo Branco", 20),
-                ("Red Label", 25), ("Jack Daniels", 30)
+                ("Copão de Gin", 10), ("Gin de Melancia", 10), ("Gin de Maça-Verde", 10), ("Gin Tropical", 10),
+                ("Passaport", 20), ("Passaport Honey", 25), ("Passaport Apple", 25), ("Cavalo Branco", 20),
+                ("Red Label", 25), ("Jack Daniels", 40), ("Jack Daniels Honey", 40)
             ]
             try:
                 idx = int(mensagem) - 1
@@ -256,8 +262,22 @@ def webhook():
                 cliente.estado = 'menu'
             except:
                 resposta = "Opção inválida. Digite novamente o número do copão."
-        else:
-            resposta = "Opção inválida. Digite 1 para ver o cardápio."
+        elif cliente.estado == 'lanches':
+            opcoes = [
+                ("X-Burguer", 20), ("X-Salada", 22), ("X-Bacon", 22)
+            ]
+            try:
+                idx = int(mensagem) - 1
+                nome, preco = opcoes[idx]
+                cliente.soma += preco
+                pedido = json.loads(cliente.pedido)
+                pedido.append(f"{nome} - R$ {preco},00")
+                cliente.pedido = json.dumps(pedido)
+                db.session.commit()
+                resposta = f"{nome} adicionado! Digite 1 para ver o cardápio ou 0 para finalizar."
+                cliente.estado = 'menu'
+            except:
+                resposta = "Opção inválida. Digite novamente o número do lanche."
 
     return jsonify({"response": resposta})
 @app.route('/clientes', methods=['GET'])
@@ -292,4 +312,5 @@ def obter_cliente(id):
 
 if __name__ == '__main__':
     print("Servidor Flask rodando! Use o endereço do ngrok para conectar seu webhook do WhatsApp.")
+
     app.run(host="0.0.0.0", port=5000)
