@@ -76,7 +76,7 @@ def webhook():
                 resposta = (
                     "Espetos:\n"
                     "1 - Frango (R$8)\n"
-                    "2 - Carne (R$8)\n"
+                    "2 - Carne (R$10)\n"
                     "3 - Cafta (R$10)\n"
                     "4 - Cafta com Queijo (R$10)\n"
                     "5 - Queijo Coalho (R$10)\n"
@@ -163,7 +163,7 @@ def webhook():
                 resposta = "Opção inválida. Digite 1 para ver o cardápio."
         elif cliente.estado == 'espeto':
             opcoes = [
-                ("Frango", 8), ("Carne", 8), ("Cafta", 10), ("Cafta com Queijo", 10),
+                ("Frango", 8), ("Carne", 10), ("Cafta", 10), ("Cafta com Queijo", 10),
                 ("Queijo Coalho", 10), ("Coração", 10)
             ]
             try:
